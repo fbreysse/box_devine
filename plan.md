@@ -74,10 +74,10 @@
 ---
 
 ## **3. Gestion des offres de coffrets**
-### **3.1 Création de la table `offers` dans Supabase**
-- Colonnes : `id`, `name`, `description`, `price`, `min_orders`, `discounts`, `end_date`, `image_url`
+### **3.1 Création de la table `offers` dans Supabase** ✅
+- Colonnes : `id`, `name`, `description`, `price`, `min_orders`, `discounts`, `end_date`, `image_url` ✅
 
-**Structure de la table prévue :**
+**Structure de la table implémentée :**
 ```sql
 create table offers (
   id uuid default uuid_generate_v4() primary key,
@@ -93,19 +93,21 @@ create table offers (
 );
 ```
 
-**Test :** Vérifier que les offres peuvent être insérées et récupérées via SQL.
+**Test :** ✅ Table créée et accessible via l'API Supabase
 
-### **3.2 Interface d'affichage des offres**
-- Créer une page `/offers` qui affiche toutes les offres
-- Afficher le nom, la description, le prix et l'état de chaque offre
+### **3.2 Interface d'affichage des offres** ✅
+- Créer une page `/offers` qui affiche toutes les offres ✅
+- Afficher le nom, la description, le prix et l'état de chaque offre ✅
 
-**Test :** Vérifier que les offres s'affichent correctement depuis la base de données.
+**Choix techniques :**
+- Utilisation de Server Components pour le chargement des offres
+- Design responsive avec grille adaptative (1, 2 ou 3 colonnes selon la taille d'écran)
+- Gestion des images avec fallback
+- Formatage des dates et prix en français
 
 ### **3.3 Ajout d'une offre (admin)**
 - Créer une page `/admin/offers/new` avec formulaire d'ajout
 - Vérifier que les données sont bien envoyées à Supabase
-
-**Test :** Créer une offre et vérifier son affichage sur `/offers`.
 
 ### **3.4 Modification et suppression d'une offre**
 - Ajouter la modification et suppression d'offre pour l'admin

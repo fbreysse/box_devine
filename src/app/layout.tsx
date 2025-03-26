@@ -1,12 +1,13 @@
 import React from 'react';
 import '../styles/globals.css';
 import { Inter } from 'next/font/google';
+import Navigation from '../components/Navigation';
 
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata = {
-  title: 'Devine - Coffrets de Vin',
-  description: 'Application de commande de coffrets de vin',
+  title: 'Devine - Coffrets de vin',
+  description: 'Commandez vos coffrets de vin en groupe',
 };
 
 export default function RootLayout({
@@ -17,6 +18,7 @@ export default function RootLayout({
   return (
     <html lang="fr">
       <body className={inter.className}>
+        <Navigation />
         <main className="min-h-screen">
           {children}
         </main>
