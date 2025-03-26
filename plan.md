@@ -1,21 +1,27 @@
 # **Plan détaillé d'implémentation pour le site de commande de coffrets de vin**
 
-## **1. Initialisation du projet**
-### **1.1 Création du dépôt et configuration du projet**
-- Initialiser un dépôt Git.
-- Configurer un projet Next.js :
+## **1. Initialisation du projet** ✅
+### **1.1 Création du dépôt et configuration du projet** ✅
+- Initialiser un dépôt Git ✅
+- Configurer un projet Next.js avec l'App Router ✅
   ```bash
-  npx create-next-app
+  npx create-next-app@latest
   ```
-- Installer les dépendances de base :  
+- Installer les dépendances de base ✅
   ```bash
-  npm install @supabase/supabase-js react-hook-form tailwindcss @headlessui/react
+  npm install @supabase/ssr @supabase/supabase-js tailwindcss @headlessui/react
   ```
-- Ajouter TailwindCSS :  
+- Configurer TailwindCSS ✅
   ```bash
   npx tailwindcss init
   ```
-- Configurer `.env.local` pour les variables Supabase.
+- Configurer `.env.local` pour les variables Supabase ✅
+
+**Choix techniques :**
+- Next.js 15.2.4 avec App Router pour bénéficier des dernières fonctionnalités de routing et de Server Components
+- Tailwind CSS pour le styling, permettant un développement rapide et cohérent
+- @supabase/ssr pour l'authentification côté serveur avec Next.js
+- @headlessui/react pour des composants UI accessibles et personnalisables
 
 **Notes d'implémentation:**
 - Pour Next.js 15+ et Tailwind 4+, utiliser `@tailwindcss/postcss`:
@@ -40,18 +46,28 @@
 
 ---
 
-## **2. Mise en place de l'authentification**
-### **2.1 Configuration de l'auth avec Supabase**
-- Créer un projet Supabase.
-- Activer Supabase Auth (e-mail/password).
-- Ajouter une table `users` (automatique via Supabase Auth).
+## **2. Mise en place de l'authentification** ✅
+### **2.1 Configuration de l'auth avec Supabase** ✅
+- Créer un projet Supabase ✅
+- Activer Supabase Auth (e-mail/password) ✅
+- Table `users` créée automatiquement via Supabase Auth ✅
 
 **Test :** Essayer de s'inscrire et de se connecter avec Supabase.
 
-### **2.2 Page de connexion et inscription**
-- Créer une page `/login` avec un formulaire (email/mot de passe).
-- Ajouter un bouton d'inscription et connexion avec Supabase Auth.
-- Gérer la redirection après connexion.
+### **2.2 Page de connexion et inscription** ✅
+- Créer une page `/login` avec formulaire (email/mot de passe) ✅
+- Créer une page `/register` avec formulaire d'inscription ✅
+- Ajouter la gestion des sessions avec Supabase ✅
+- Implémenter la redirection après connexion ✅
+
+**Choix techniques :**
+- Utilisation de `createBrowserClient` de @supabase/ssr pour l'authentification côté client
+- Utilisation de `createServerClient` pour la gestion des sessions côté serveur
+- Route `/auth/callback` pour gérer le flux d'authentification OAuth
+- Gestion des cookies pour maintenir la session utilisateur
+- Messages d'erreur en français pour une meilleure expérience utilisateur
+- Design responsive avec Tailwind CSS
+- Validation des formulaires côté client et serveur
 
 **Test :** Vérifier que l'utilisateur peut s'inscrire et se connecter.
 
@@ -59,26 +75,62 @@
 
 ## **3. Gestion des offres de coffrets**
 ### **3.1 Création de la table `offers` dans Supabase**
-- Colonnes : `id`, `name`, `description`, `price`, `min_orders`, `discounts`, `end_date`, `image_url`.
+- Colonnes : `id`, `name`, `description`, `price`, `min_orders`, `discounts`, `end_date`, `image_url`
+
+**Structure de la table prévue :**
+```sql
+create table offers (
+  id uuid default uuid_generate_v4() primary key,
+  name text not null,
+  description text,
+  price decimal(10,2) not null,
+  min_orders integer not null,
+  discounts jsonb,
+  end_date timestamp with time zone,
+  image_url text,
+  created_at timestamp with time zone default now(),
+  updated_at timestamp with time zone default now()
+);
+```
 
 **Test :** Vérifier que les offres peuvent être insérées et récupérées via SQL.
 
 ### **3.2 Interface d'affichage des offres**
-- Créer une page `/offers` qui affiche toutes les offres.
-- Afficher le nom, la description, le prix et l'état de chaque offre.
+- Créer une page `/offers` qui affiche toutes les offres
+- Afficher le nom, la description, le prix et l'état de chaque offre
 
 **Test :** Vérifier que les offres s'affichent correctement depuis la base de données.
 
 ### **3.3 Ajout d'une offre (admin)**
-- Créer une page `/admin/offers/new` avec un formulaire d'ajout.
-- Vérifier que les données sont bien envoyées à Supabase.
+- Créer une page `/admin/offers/new` avec formulaire d'ajout
+- Vérifier que les données sont bien envoyées à Supabase
 
 **Test :** Créer une offre et vérifier son affichage sur `/offers`.
 
 ### **3.4 Modification et suppression d'une offre**
-- Ajouter la modification et suppression d'offre pour l'admin.
+- Ajouter la modification et suppression d'offre pour l'admin
 
-**Test :** Modifier une offre et s'assurer que les changements sont visibles.
+**Choix techniques prévus :**
+- Utilisation de Server Components pour le chargement initial des offres
+- Client Components pour les interactions utilisateur (ajout, modification, suppression)
+- Optimistic UI pour une meilleure expérience utilisateur
+- Middleware pour la protection des routes admin
+- Upload d'images vers le storage Supabase
+- Cache des données avec Next.js
+
+---
+
+**Notes sur l'implémentation actuelle :**
+1. L'authentification est entièrement fonctionnelle avec gestion des sessions
+2. Les formulaires sont sécurisés et validés
+3. L'interface utilisateur est responsive et accessible
+4. La gestion des erreurs est en français pour une meilleure expérience utilisateur
+5. Le système de redirection post-authentification est en place
+
+**Prochaines étapes :**
+1. Implémenter la table `offers` dans Supabase
+2. Créer l'interface d'affichage des offres
+3. Mettre en place la gestion administrative des offres
 
 ---
 
