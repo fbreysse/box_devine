@@ -1,77 +1,63 @@
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
+import OfferCard from '../../components/OfferCard';
 
-async function getOffers() {
+export default async function OffersPage() {
   const cookieStore = cookies();
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
-        async get(name: string) {
-          const cookie = await cookieStore.get(name);
-          return cookie?.value;
+        get(name: string) {
+          return cookieStore.get(name)?.value;
         },
       },
     }
   );
 
-  const { data: offers, error } = await supabase
+  const { data: { session } } = await supabase.auth.getSession();
+  const { data: profile } = session ? await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', session.user.id)
+    .single() : { data: null };
+
+  const isAdmin = profile?.role === 'admin';
+
+  const { data: offers } = await supabase
     .from('offers')
     .select('*')
     .order('created_at', { ascending: false });
 
-  if (error) {
-    console.error('Error fetching offers:', error);
-    return [];
-  }
-
-  return offers;
-}
-
-export default async function OffersPage() {
-  const offers = await getOffers();
-
   return (
     <div className="min-h-screen bg-gray-100 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
-        <h1 className="text-3xl font-bold text-gray-900 mb-8">Nos coffrets de vin</h1>
-        
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {offers.map((offer) => (
-            <div
-              key={offer.id}
-              className="bg-white overflow-hidden shadow-sm rounded-lg hover:shadow-md transition-shadow duration-300"
-            >
-              {offer.image_url && (
-                <div className="aspect-w-16 aspect-h-9">
-                  <img
-                    src={offer.image_url}
-                    alt={offer.name}
-                    className="w-full h-48 object-cover"
-                  />
-                </div>
-              )}
-              <div className="p-6">
-                <h2 className="text-xl font-semibold text-gray-900 mb-2">
-                  {offer.name}
-                </h2>
-                <p className="text-gray-600 mb-4">{offer.description}</p>
-                <div className="flex justify-between items-center">
-                  <div>
-                    <p className="text-lg font-bold text-gray-900">{offer.price}€</p>
-                    <p className="text-sm text-gray-500">
-                      Min. {offer.min_orders} commandes
-                    </p>
-                  </div>
-                  {offer.end_date && (
-                    <p className="text-sm text-gray-500">
-                      Jusqu'au {new Date(offer.end_date).toLocaleDateString()}
-                    </p>
-                  )}
-                </div>
-              </div>
+        <div className="md:flex md:items-center md:justify-between">
+          <div className="flex-1 min-w-0">
+            <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">
+              Nos coffrets de vin
+            </h2>
+          </div>
+          {isAdmin && (
+            <div className="mt-4 flex md:mt-0 md:ml-4">
+              <a
+                href="/admin/offers/new"
+                className="ml-3 inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              >
+                Nouvelle offre
+              </a>
             </div>
+          )}
+        </div>
+
+        <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {offers?.map((offer) => (
+            <OfferCard
+              key={offer.id}
+              offer={offer}
+              isAdmin={isAdmin}
+            />
           ))}
         </div>
       </div>

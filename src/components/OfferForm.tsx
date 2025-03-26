@@ -4,14 +4,28 @@ import { useState } from 'react';
 import { createBrowserClient } from '@supabase/ssr';
 import { useRouter } from 'next/navigation';
 
-export default function OfferForm() {
+type Offer = {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  min_orders: number;
+  end_date?: string;
+  image_url?: string;
+};
+
+type OfferFormProps = {
+  initialData?: Offer;
+};
+
+export default function OfferForm({ initialData }: OfferFormProps) {
   const [formData, setFormData] = useState({
-    name: '',
-    description: '',
-    price: '',
-    min_orders: '',
-    end_date: '',
-    image_url: '',
+    name: initialData?.name || '',
+    description: initialData?.description || '',
+    price: initialData?.price?.toString() || '',
+    min_orders: initialData?.min_orders?.toString() || '',
+    end_date: initialData?.end_date || '',
+    image_url: initialData?.image_url || '',
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -27,16 +41,31 @@ export default function OfferForm() {
     setError(null);
 
     try {
-      const { error } = await supabase.from('offers').insert([
-        {
-          name: formData.name,
-          description: formData.description,
-          price: parseFloat(formData.price),
-          min_orders: parseInt(formData.min_orders),
-          end_date: formData.end_date || null,
-          image_url: formData.image_url || null,
-        },
-      ]);
+      const offerData = {
+        name: formData.name,
+        description: formData.description,
+        price: parseFloat(formData.price),
+        min_orders: parseInt(formData.min_orders),
+        end_date: formData.end_date || null,
+        image_url: formData.image_url || null,
+      };
+
+      let error;
+
+      if (initialData) {
+        // Update existing offer
+        const { error: updateError } = await supabase
+          .from('offers')
+          .update(offerData)
+          .eq('id', initialData.id);
+        error = updateError;
+      } else {
+        // Create new offer
+        const { error: insertError } = await supabase
+          .from('offers')
+          .insert([offerData]);
+        error = insertError;
+      }
 
       if (error) throw error;
 
@@ -157,7 +186,7 @@ export default function OfferForm() {
           disabled={loading}
           className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
         >
-          {loading ? 'Création en cours...' : 'Créer l\'offre'}
+          {loading ? (initialData ? 'Modification...' : 'Création...') : (initialData ? 'Modifier l\'offre' : 'Créer l\'offre')}
         </button>
       </div>
     </form>

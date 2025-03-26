@@ -101,16 +101,21 @@ create table offers (
 
 **Test :** Vérifier qu'un administrateur peut créer une nouvelle offre.
 
-### **3.4 Modification et suppression d'une offre**
-- Ajouter la modification et suppression d'offre pour l'admin
+### **3.4 Modification et suppression d'une offre** ✅
+- Ajouter la modification et suppression d'offre pour l'admin ✅
+- Créer le composant `OfferCard` avec les boutons d'action ✅
+- Implémenter la page d'édition d'offre ✅
+- Ajouter la confirmation de suppression ✅
 
-**Choix techniques prévus :**
+**Choix techniques :**
 - Utilisation de Server Components pour le chargement initial des offres
-- Client Components pour les interactions utilisateur (ajout, modification, suppression)
+- Client Components pour les interactions utilisateur (modification, suppression)
 - Optimistic UI pour une meilleure expérience utilisateur
 - Middleware pour la protection des routes admin
-- Upload d'images vers le storage Supabase
-- Cache des données avec Next.js
+- Gestion des erreurs avec messages en français
+- Confirmation de suppression avec `window.confirm`
+
+**Test :** Vérifier qu'un administrateur peut modifier et supprimer une offre.
 
 ---
 
